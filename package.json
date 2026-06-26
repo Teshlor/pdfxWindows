@@ -14,8 +14,8 @@
     "start": "electron-vite preview",
     "dev": "electron-vite dev --watch",
     "build": "yarn typecheck && electron-vite build",
-    "build:unpack": "yarn build && electron-builder --dir --win --x64",
-    "build:win": "yarn build && electron-builder --win --x64"
+    "build:unpack": "yarn build && electron-builder --config electron-builder.windows.yml --dir --win --x64",
+    "build:win": "yarn build && electron-builder --config electron-builder.windows.yml --win --x64"
   },
   "dependencies": {
     "@electron-toolkit/preload": "3.0.2",
