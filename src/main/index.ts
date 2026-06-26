@@ -1,7 +1,7 @@
 import { app } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { collectFileArgs } from './file-intake'
-import { createWindow, getMainWindow, getRendererReady, sendOpenPaths } from './window'
+import { createWindow, getMainWindow, sendOpenPaths } from './window'
 import { buildMenu } from './menu'
 import { registerIpc } from './register-ipc'
 
