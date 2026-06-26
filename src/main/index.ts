@@ -1,10 +1,7 @@
-import { app, nativeTheme, BrowserWindow } from 'electron'
-import { join } from 'path'
-import { existsSync } from 'fs'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { FALLBACK_BG } from './native/glass'
+import { app } from 'electron'
+import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { collectFileArgs } from './file-intake'
-import { createWindow, getMainWindow, getRendererReady, sendOpenPaths } from './window'
+import { createWindow, getMainWindow, sendOpenPaths } from './window'
 import { buildMenu } from './menu'
 import { registerIpc } from './register-ipc'
 
@@ -15,15 +12,6 @@ if (process.env.PDFX_USER_DATA) {
 }
 
 let pendingOpenPaths: string[] = []
-
-app.on('open-file', (event, path) => {
-  event.preventDefault()
-  if (getRendererReady()) {
-    void sendOpenPaths([path])
-  } else {
-    pendingOpenPaths.push(path)
-  }
-})
 
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
@@ -41,13 +29,6 @@ if (!gotLock) {
   app.whenReady().then(() => {
     electronApp.setAppUserModelId('com.pdfx.app')
 
-    nativeTheme.themeSource = 'dark'
-
-    if (process.platform === 'darwin' && is.dev) {
-      const devIcon = join(app.getAppPath(), 'build', 'icon.png')
-      if (existsSync(devIcon)) app.dock?.setIcon(devIcon)
-    }
-
     app.on('browser-window-created', (_, window) => {
       optimizer.watchWindowShortcuts(window, { zoom: true })
     })
@@ -63,21 +44,9 @@ if (!gotLock) {
 
     buildMenu()
     createWindow()
-
-    if (process.platform !== 'darwin') {
-      nativeTheme.on('updated', () => {
-        getMainWindow()?.setBackgroundColor(
-          nativeTheme.shouldUseDarkColors ? FALLBACK_BG.dark : FALLBACK_BG.light
-        )
-      })
-    }
-
-    app.on('activate', () => {
-      if (BrowserWindow.getAllWindows().length === 0) createWindow()
-    })
   })
 }
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
+  app.quit()
 })

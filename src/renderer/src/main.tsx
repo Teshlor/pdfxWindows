@@ -4,6 +4,7 @@ import { GlobalWorkerOptions } from 'pdfjs-dist'
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import App from './App'
 import './styles.css'
+import './glass.css'
 
 const mapProto = Map.prototype as unknown as Record<string, unknown>
 if (typeof mapProto.getOrInsertComputed !== 'function') {

@@ -1,7 +1,6 @@
-import { shell, BrowserWindow, nativeTheme } from 'electron'
+import { shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
-import { GLASS_CONFIG, FALLBACK_BG, applyNativeGlass } from './native/glass'
 import { readFiles } from './file-intake'
 
 let mainWindow: BrowserWindow | null = null
@@ -39,12 +38,7 @@ export function createWindow(): void {
     minHeight: 480,
     show: false,
     autoHideMenuBar: true,
-    ...GLASS_CONFIG,
-    ...(process.platform === 'darwin'
-      ? {}
-      : {
-          backgroundColor: nativeTheme.shouldUseDarkColors ? FALLBACK_BG.dark : FALLBACK_BG.light
-        }),
+    backgroundColor: '#1c1c1e',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true
@@ -52,15 +46,12 @@ export function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => mainWindow?.show())
-  applyNativeGlass(mainWindow)
   mainWindow.on('closed', () => {
     mainWindow = null
     rendererReady = false
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    // Only hand genuine web/mail links to the OS; never blindly open arbitrary
-    // schemes (file:, custom protocols, etc.) that a compromised renderer could craft.
     let protocol = ''
     try {
       protocol = new URL(details.url).protocol
@@ -73,8 +64,6 @@ export function createWindow(): void {
     return { action: 'deny' }
   })
 
-  // The renderer is a local single-page app; the only legitimate top-level
-  // navigation is the dev server. Block everything else (defense in depth).
   mainWindow.webContents.on('will-navigate', (event, url) => {
     const devUrl = process.env['ELECTRON_RENDERER_URL']
     if (is.dev && devUrl && url.startsWith(devUrl)) return
@@ -83,8 +72,7 @@ export function createWindow(): void {
 
   mainWindow.webContents.on('before-input-event', (event, input) => {
     if (input.type !== 'keyDown' || input.code !== 'KeyI') return
-    const mod = process.platform === 'darwin' ? input.meta : input.control
-    if (mod && (input.shift || input.alt)) {
+    if (input.control && (input.shift || input.alt)) {
       event.preventDefault()
       toggleDevTools()
     }
