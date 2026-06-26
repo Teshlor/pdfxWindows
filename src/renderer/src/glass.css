@@ -1,5 +1,5 @@
-/* Windows acrylic uses the transparent BrowserWindow behind this surface. Keep the
-   tint low so the desktop remains visible while document rows stay legible. */
+/* Let the native Windows backdrop provide the blur. This layer only gives the
+   workspace a very light tint so the wallpaper or app behind it remains visible. */
 html,
 body,
 #root {
@@ -7,75 +7,90 @@ body,
 }
 
 .app {
-  --group-bg: rgba(255, 255, 255, 0.09);
-  --hairline: rgba(255, 255, 255, 0.18);
-  --hover: rgba(255, 255, 255, 0.12);
-  --control: rgba(255, 255, 255, 0.16);
-  --scrollbar-thumb: rgba(255, 255, 255, 0.24);
-  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.38);
+  --group-bg: rgba(255, 255, 255, 0.045);
+  --hairline: rgba(255, 255, 255, 0.13);
+  --hover: rgba(255, 255, 255, 0.09);
+  --control: rgba(255, 255, 255, 0.12);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.32);
   background:
-    linear-gradient(135deg, rgba(42, 42, 48, 0.16), rgba(12, 12, 16, 0.24)),
-    rgba(16, 16, 20, 0.2);
-  backdrop-filter: blur(30px) saturate(145%);
-  -webkit-backdrop-filter: blur(30px) saturate(145%);
+    linear-gradient(135deg, rgba(42, 42, 48, 0.025), rgba(12, 12, 16, 0.055)),
+    rgba(16, 16, 20, 0.025);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* The blank space between the document counter and controls is an explicit
+   drag handle. Buttons remain interactive because they are marked no-drag. */
+.toolbar,
+.toolbar-meta,
+.toolbar-spacer {
+  app-region: drag;
+  -webkit-app-region: drag;
+}
+
+.toolbar button,
+.toolbar .zoom-cluster {
+  app-region: no-drag;
+  -webkit-app-region: no-drag;
 }
 
 .toolbar {
-  background: linear-gradient(to bottom, rgba(28, 28, 34, 0.18), transparent);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: linear-gradient(to bottom, rgba(28, 28, 34, 0.055), transparent);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.035);
 }
 
 .doc-row {
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    0 12px 34px rgba(0, 0, 0, 0.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 12px 34px rgba(0, 0, 0, 0.1);
 }
 
 .empty-card {
-  background: rgba(18, 18, 22, 0.14);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: rgba(18, 18, 22, 0.055);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
 }
 
 @media (prefers-color-scheme: light) {
   .app {
-    --group-bg: rgba(255, 255, 255, 0.46);
-    --hairline: rgba(45, 45, 52, 0.14);
-    --hover: rgba(20, 20, 26, 0.08);
-    --control: rgba(255, 255, 255, 0.48);
-    --scrollbar-thumb: rgba(30, 30, 35, 0.22);
-    --scrollbar-thumb-hover: rgba(30, 30, 35, 0.38);
+    --group-bg: rgba(255, 255, 255, 0.26);
+    --hairline: rgba(45, 45, 52, 0.1);
+    --hover: rgba(20, 20, 26, 0.055);
+    --control: rgba(255, 255, 255, 0.3);
+    --scrollbar-thumb: rgba(30, 30, 35, 0.18);
+    --scrollbar-thumb-hover: rgba(30, 30, 35, 0.3);
     background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.26), rgba(228, 232, 240, 0.3)),
-      rgba(242, 244, 249, 0.18);
+      linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(228, 232, 240, 0.12)),
+      rgba(242, 244, 249, 0.04);
   }
 
   .toolbar {
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.32), transparent);
-    border-bottom-color: rgba(40, 40, 48, 0.08);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.14), transparent);
+    border-bottom-color: rgba(40, 40, 48, 0.05);
   }
 
   .doc-row {
-    border-color: rgba(255, 255, 255, 0.48);
+    border-color: rgba(255, 255, 255, 0.32);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.65),
-      0 12px 34px rgba(20, 20, 24, 0.1);
+      inset 0 1px 0 rgba(255, 255, 255, 0.48),
+      0 12px 34px rgba(20, 20, 24, 0.07);
   }
 
   .empty-card {
-    background: rgba(255, 255, 255, 0.26);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48);
   }
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .app {
-    background: rgba(18, 18, 22, 0.74);
+    background: rgba(18, 18, 22, 0.55);
   }
 
   @media (prefers-color-scheme: light) {
     .app {
-      background: rgba(245, 246, 250, 0.82);
+      background: rgba(245, 246, 250, 0.64);
     }
   }
 }
