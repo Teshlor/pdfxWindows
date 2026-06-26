@@ -22,6 +22,7 @@ win:
       arch:
         - x64
   executableName: pdfx
+  signAndEditExecutable: false
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
