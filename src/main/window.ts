@@ -40,32 +40,25 @@ export function createWindow(): void {
     minHeight: 480,
     show: false,
 
-    // Keep normal Windows caption buttons / Snap behavior.
-    frame: true,
-    movable: true,
-    resizable: true,
+    // Remove the standard title bar but retain native Windows minimize/maximize/close controls.
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#00000000',
+      symbolColor: '#f3f3f3',
+      height: 56
+    },
 
-    autoHideMenuBar: true,
-
-    // Allow the native acrylic material and transparent renderer to show through.
+    // True window transparency. Do NOT add Acrylic or Mica below this.
     transparent: true,
     backgroundColor: '#00000000',
+
+    autoHideMenuBar: true,
 
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true
     }
   })
-
-  // Explicitly retain normal user movement behavior.
-  mainWindow.setMovable(true)
-
-  // Windows 11 live glass backdrop.
-  try {
-    mainWindow.setBackgroundMaterial('acrylic')
-  } catch {
-    // Older Windows releases will still use ordinary transparency.
-  }
 
   mainWindow.on('ready-to-show', () => mainWindow?.show())
 
