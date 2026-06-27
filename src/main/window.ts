@@ -21,12 +21,14 @@ export function setRendererReady(value: boolean): void {
 export function toggleDevTools(): void {
   const wc = mainWindow?.webContents
   if (!wc) return
+
   if (wc.isDevToolsOpened()) wc.closeDevTools()
   else wc.openDevTools({ mode: 'detach' })
 }
 
 export async function sendOpenPaths(paths: string[]): Promise<void> {
   if (!mainWindow || paths.length === 0) return
+
   mainWindow.webContents.send('pdfx:files-opened', await readFiles(paths))
 }
 
@@ -37,15 +39,36 @@ export function createWindow(): void {
     minWidth: 720,
     minHeight: 480,
     show: false,
+
+    // Keep normal Windows caption buttons / Snap behavior.
+    frame: true,
+    movable: true,
+    resizable: true,
+
     autoHideMenuBar: true,
-    backgroundColor: '#1c1c1e',
+
+    // Allow the native acrylic material and transparent renderer to show through.
+    transparent: true,
+    backgroundColor: '#00000000',
+
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true
     }
   })
 
+  // Explicitly retain normal user movement behavior.
+  mainWindow.setMovable(true)
+
+  // Windows 11 live glass backdrop.
+  try {
+    mainWindow.setBackgroundMaterial('acrylic')
+  } catch {
+    // Older Windows releases will still use ordinary transparency.
+  }
+
   mainWindow.on('ready-to-show', () => mainWindow?.show())
+
   mainWindow.on('closed', () => {
     mainWindow = null
     rendererReady = false
@@ -53,25 +76,31 @@ export function createWindow(): void {
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     let protocol = ''
+
     try {
       protocol = new URL(details.url).protocol
     } catch {
       protocol = ''
     }
+
     if (protocol === 'https:' || protocol === 'http:' || protocol === 'mailto:') {
       shell.openExternal(details.url)
     }
+
     return { action: 'deny' }
   })
 
   mainWindow.webContents.on('will-navigate', (event, url) => {
     const devUrl = process.env['ELECTRON_RENDERER_URL']
+
     if (is.dev && devUrl && url.startsWith(devUrl)) return
+
     event.preventDefault()
   })
 
   mainWindow.webContents.on('before-input-event', (event, input) => {
     if (input.type !== 'keyDown' || input.code !== 'KeyI') return
+
     if (input.control && (input.shift || input.alt)) {
       event.preventDefault()
       toggleDevTools()
